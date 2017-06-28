@@ -1,4 +1,3 @@
-from flask import session
 from flaskext.mysql import MySQL
 
 
@@ -8,19 +7,19 @@ class DashboardUser(object):
         self.username = username
         self.db = db
 
-    def set_session(self):
-        session['username'] = self.username
-
-    def unset_session(self):
-        session.pop('username')
+    def set_username(self, username):
+        self.username = username
 
     def get_dashboards(self):
-        self.db.get_dashboards(self.username)
+        return self.db.get_dashboards(self.username)
 
-    @staticmethod
-    def is_login():
-        return 'username' in session
+    def serialize(self):
+        user_info = {'name': self.username}
+        user_info.update({'dashboards': self.get_dashboards()})
+        return user_info
 
+    def add_dashboard(self, dashboard_name, dashboard_url):
+        self.db.add_dashboard(self.username, dashboard_name, dashboard_url)
     # def add_dashboard(self, dashboard_name, dashboard_url):
     #     self.query_db("Insert into dashboards values ('" + self.username + "','" + dashboard_name
     #                   + "','" + dashboard_url + "')")
@@ -39,7 +38,8 @@ class DashboardDB(MySQL):
         return self.cursor.execute(query)
 
     def validate_user(self, username, password):
-        self.query_db("Select count(*) from users where username = '" + username + "' and password = md5('" + password + "')")
+        self.query_db("Select count(*) from users where username = '" +
+                      username + "' and password = md5('" + password + "')")
         if self.cursor.fetchone():
             return True
         return False
@@ -50,3 +50,7 @@ class DashboardDB(MySQL):
         for row in self.cursor:
             dashboards.update({row[0]: row[1]})
         return dashboards
+
+    def add_dashboard(self, username, dashboard_name, dashboard_url):
+        self.query_db("Insert into dashboards values('" + username + "','" +
+                      dashboard_url + "','" + dashboard_name + "')")

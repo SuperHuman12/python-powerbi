@@ -8,13 +8,21 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Startmin - Bootstrap Admin Theme</title>
+    <title>Power BI Dashboards Panel</title>
 
 
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+{#    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">#}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/metisMenu/2.7.0/metisMenu.css" rel="stylesheet">
     <link href="{{ url_for('static',filename='css/startmin.css') }}" rel="stylesheet">
-    
+{#    <link href="{{ url_for('static',filename='css/bootstrap-social.css') }}" rel="stylesheet">#}
+{#    <link href="{{ url_for('static',filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">#}
+{#    <link href="{{ url_for('static',filename='css/font-awesome.min.css') }}" rel="stylesheet">#}
+{#    <link href="{{ url_for('static',filename='css/morris.css') }}" rel="stylesheet">#}
+{#    <link href="{{ url_for('static',filename='css/style.css') }}" rel="stylesheet">#}
+{#    <link href="{{ url_for('static',filename='css/timeline.css') }}" rel="stylesheet">#}
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -22,49 +30,15 @@
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.4.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <script>
-        {% autoescape off %}
-        $('.active').click(function() {
-            var dashboards = {{ dashboards }};
-            $('.dashboard').attr('src', dashboards[$(this).text()]);
-            console.log(dashboards);
-            console.log(dashboards[$(this).text()]);
-        }); {% endautoescape %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-        $('.add-dashboard').click(function(event) {
-            event.preventDefault();
-            $.ajax({
-                url: '/add-dashboard',
-                data: $('.add-dashboard-form').serialize(),
-                type: 'POST',
-                success: function(response) {
-                    console.log(response);
-                    window.location.href = 'dashboard'
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
-        });
 
-        $('.logout').click(function(event) {
-            event.preventDefault();
-            $.ajax({
-                url: '/signout',
-                type: 'POST',
-                success: function(response) {
-                    window.location.href = 'index';
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
-        });
+{#    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.4.min.js"></script>#}
+{#    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>#}
 
-    </script>
+
 </head>
 
 <body>
@@ -76,32 +50,10 @@
                 <a class="navbar-brand" href="#">Developed by Wasiq Noor</a>
             </div>
 
-
-            <div class="modal fade" id="myModal" role="dialog">
-                <div class="modal-dialog">
-
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Add Dashboard</h4>
-                        </div>
-
-                        <form class="add-dashboard-form">
-                            <input type="text" class="form-control" name="dashboard-name" placeholder="Dashboard Name" required="" autofocus="" />
-                            <input type="text" class="form-control" name="dashboard-url" placeholder="Dashboard Url" required="" />
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-default add-dashboard" data-dismiss="modal">Add</button>
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
             <ul class="nav navbar-right navbar-top-links">
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user fa-fw"></i> {{ session['username'] }} <b class="caret"></b>
+                        <i class="fa fa-user fa-fw"></i> {{ user_info['name'] }} <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="#" class="logout"><i class="fa fa-sign-out fa-fw"></i>Logout</a></li>
@@ -114,9 +66,9 @@
             <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
-                        {% for keys in dashboards %}
+                        {% for dashboard_names in user_info['dashboards'] %}
                         <li>
-                            <a href="#" class="active"><i class="fa fa-fw"></i>{{ keys }}</a>
+                            <a href="#" class="active"><i class="fa fa-fw"></i>{{ dashboard_names }}</a>
                         </li>
                         {% endfor %}
 
@@ -141,6 +93,70 @@
 
     </div>
 
+    <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Add Dashboard</h4>
+                        </div>
+
+                        <form class="add-dashboard-form">
+                            <input type="text" class="form-control" name="dashboard-name" placeholder="Dashboard Name" required="" autofocus="" />
+                            <input type="text" class="form-control" name="dashboard-url" placeholder="Dashboard Url" required="" />
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-default add-dashboard" data-dismiss="modal">Add</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+    </div>
+
+
 </body>
+
+    <script>
+        {% autoescape off %}
+        $('.active').click(function() {
+            var dashboards = {{ user_info['dashboards'] }};
+            console.log(dashboards);
+            $('.dashboard').attr('src', dashboards[$(this).text()]);
+            console.log(dashboards);
+            console.log(dashboards[$(this).text()]);
+        }); {% endautoescape %}
+
+        $('.add-dashboard').click(function(event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/add-dashboard',
+                data: $('.add-dashboard-form').serialize(),
+                type: 'POST',
+                success: function(response) {
+                    console.log(response);
+                    window.location.href = 'dashboard'
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        $('.logout').click(function(event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/logout',
+                type: 'POST',
+                success: function(response) {
+                    window.location.href = 'index';
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+    </script>
 
 </html>

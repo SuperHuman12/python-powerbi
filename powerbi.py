@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from userdashboard import DashboardUser, DashboardDB
-import json
+
 
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
@@ -15,7 +15,7 @@ db.connect()
 
 @app.route('/')
 def index():
-    if DashboardUser.is_login():
+    if 'username' in session:
         return redirect(url_for('dashboard'))
     else:
         return render_template('index.html')
@@ -23,54 +23,39 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-    if not DashboardUser.is_login() and db.validate_user(request.form['username'], request.form['password']):
-        user = DashboardUser(request.form['username'], db)
-        user.set_session()
-        return index(user=user)
+    if 'username' not in session and db.validate_user(request.form['username'], request.form['password']):
+        session['username'] = request.form['username']
+        return index()
 
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    if 'username' in session:
+        return render_template('dashboard.html', user_info=DashboardUser(session['username'], db).serialize())
+    else:
+        index()
 
-# @app.route('/dashboard', methods=['GET'])
-# def dashboard():
-#     return render_template('dashboard.html', dashboards=get_user_dashboards(session['username']))
-#
-#
-# @app.route('/add-dashboard', methods=['POST'])
-# def add_dashboard():
-#     dashboard_name = request.form['dashboard-name']
-#     url = request.form['dashboard-url']
-#     return json.dumps(add_dashboard(dashboard_name, url))
-#
-#
-# def add_dashboard(dashboard_name, dashboard_url):
-#     cursor = mysql.connect().cursor()
-#     cursor.execute("Insert into dashboards values('" + session['username'] + "','" + dashboard_url + "','"+ dashboard_name + "')")
-#
-#
-# @app.route("/signout", methods=['POST'])
-# def logout():
-#     session.pop('username')
-#     return redirect(render_template('index.html'))
-#
-# def get_user_dashboards(username):
-#     dashboards = {}
-#     cursor = mysql.connect().cursor()
-#     cursor.execute("Select * from dashboards where username = '" + username + "'")
-#     for row in cursor:
-#         dashboards.update({row[2]: row[1]})
-#     return dashboards
-#
-#
-# def validate_login(username, password):
-#     cursor = mysql.connect().cursor()
-#     cursor.execute("Select count(*) from users where username = '"
-#           + username + "' and password = md5('" + password + "')")
-#     if cursor.fetchone():
-#         return True
-#     return False
+
+@app.route('/index')
+def home():
+    return render_template('index.html')
+
+
+@app.route('/add-dashboard', methods=['POST'])
+def add_dashboard():
+    if 'username' in session:
+        user_info = DashboardUser(session['username'], db)
+        user_info.add_dashboard(request.form['dashboard-name'], request.form['dashboard-url'])
+        return "Success"
+    else:
+        index()
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    if 'username' in session:
+        session.pop('username')
+        return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
