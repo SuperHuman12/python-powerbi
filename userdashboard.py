@@ -52,5 +52,7 @@ class DashboardDB(MySQL):
         return dashboards
 
     def add_dashboard(self, username, dashboard_name, dashboard_url):
+        print("Insert into dashboards values('" + username + "','" +
+                      dashboard_url + "','" + dashboard_name + "')")
         self.query_db("Insert into dashboards values('" + username + "','" +
                       dashboard_url + "','" + dashboard_name + "')")
