@@ -15,5 +15,5 @@ CREATE TABLE dashboards(
     username VARCHAR (20),
     url VARCHAR (500) NOT NULL,
     name VARCHAR (20),
-    FOREIGN KEY (url) REFERENCES users(username)
+    FOREIGN KEY (username) REFERENCES users(username)
 );
