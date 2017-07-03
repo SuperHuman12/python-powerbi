@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from userdashboard import DashboardUser, DashboardDB
 
 
@@ -25,7 +25,8 @@ def index():
 def login():
     if 'username' not in session and db.validate_user(request.form['username'], request.form['password']):
         session['username'] = request.form['username']
-        return index()
+        return jsonify({'login-status': True})
+    return jsonify({'login-status': False})
 
 
 @app.route('/dashboard')
@@ -41,11 +42,14 @@ def home():
     return render_template('index.html')
 
 
-@app.route('/add-dashboard', methods=['POST'])
+@app.route('/add-user', methods=['POST'])
 def add_dashboard():
     if 'username' in session:
         user_info = DashboardUser(session['username'], db)
-        user_info.add_dashboard(request.form['dashboard-name'], request.form['dashboard-url'])
+        user_info.add_user(request.form['username'], request.form['password'],
+                           request.form['brandName'], request.form['parentCompany'],
+                           request.form['status'])
+        user_info.add_dashboard(request.form['username'], request.form['reportAccess'], request.form['msgDashboard'])
         return "Success"
     else:
         index()

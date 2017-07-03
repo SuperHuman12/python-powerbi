@@ -3,17 +3,19 @@ USE powerbi;
 
 
 CREATE TABLE users(
-    username VARCHAR (20),
-    password BINARY(100),
-    
+    username VARCHAR (20) NOT NULL,
+    password VARCHAR(32) NOT NULL,
+    brand_name VARCHAR (20),
+    parent_company VARCHAR (20),
+    status VARCHAR (20),
     PRIMARY KEY (username)
 );
 
-INSERT INTO users VALUES ('admin',md5('admin'));
+INSERT INTO users VALUES ('admin', MD5('admin'), NULL, NULL, 'admin');
 
 CREATE TABLE dashboards(
     username VARCHAR (20),
     url VARCHAR (500) NOT NULL,
-    name VARCHAR (20),
+    msg_dashboard VARCHAR (100) NOT NULL,
     FOREIGN KEY (username) REFERENCES users(username)
 );
